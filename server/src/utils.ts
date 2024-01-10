@@ -1,33 +1,23 @@
-import jwt from "jsonwebtoken";
+import webpush, { PushSubscription } from "web-push";
+
 require("dotenv").config();
 
-export function generateToken(pushSubscription: PushSubscription) {
-  const payload = {
-    aud: pushSubscription.endpoint,
-    exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60,
-    sub: "mailto:alex.martos@hotmail.se",
-  };
-
-  return jwt.sign(JSON.stringify(payload), process.env.VAPID_PRIVATE!);
-}
-
-export async function pushToService(subscription: PushSubscription) {
-  const token = generateToken(subscription);
-
+export async function pushToService(
+  subscription: PushSubscription,
+  message: string
+) {
   try {
-    const response = await fetch(subscription.endpoint, {
-      method: "POST",
-      headers: {
-        Authorization: `WebPush ${token}`,
-        "Crypto-Key": `p256ecdsa=${Buffer.from(
-          process.env.VAPID_PUBLIC!
-        ).toString("base64")}`,
+    const response = await webpush.sendNotification(subscription, message, {
+      vapidDetails: {
+        privateKey: process.env.VAPID_PRIVATE!,
+        publicKey: process.env.VAPID_PUBLIC!,
+        subject: "mailto:someemail.com",
       },
     });
 
-    const body = await response.text();
+    // const body = await response.text();
 
-    console.log(body);
+    // console.log(body);
   } catch (err) {
     console.log("Error while pushing");
 

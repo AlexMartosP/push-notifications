@@ -6,13 +6,50 @@ subscribeBtn.addEventListener("click", askForPermisson);
 sendButton.addEventListener("click", sendMessage);
 
 async function askForPermisson() {
+  const SW = await navigator.serviceWorker.getRegistration();
+
+  if (!SW) {
+    console.log("No service worker registered");
+    return;
+  }
+
+  console.log("Checking if has current subscription");
+  const currentSubscription = await SW.pushManager.getSubscription();
+
+  if (currentSubscription) {
+    console.log("Has current subscription");
+    return;
+  }
+
   console.log("Asking for permission...");
   const permission = await Notification.requestPermission();
   console.log(permission);
+
+  if (permission === "granted") {
+    const vapid = await getPublicVAPIDKey();
+
+    console.log("Subscribing...");
+    console.log(vapid.public_key);
+    const subscription = await SW.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: vapid.public_key,
+    });
+
+    console.log("New pushsubscription => ", subscription);
+    await subscribe(subscription);
+
+    console.log("Subscribed");
+  }
+}
+
+async function getPublicVAPIDKey() {
+  const res = await fetch("http://localhost:8080/vapid");
+
+  return await res.json();
 }
 
 async function subscribe(pushSubscription) {
-  fetch("http://localhost:8080/subscribe", {
+  await fetch("http://localhost:8080/subscribe", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -52,27 +89,6 @@ async function registerSW() {
       scope: "/client/",
     });
     console.log("SW registered");
-
-    const permissionState = await sw.pushManager.permissionState({
-      userVisibleOnly: true,
-    });
-    console.log("Push permission state => " + permissionState);
-
-    const pushSubscription = await sw.pushManager.getSubscription();
-
-    console.log("Pushsubscription => ", pushSubscription);
-
-    if (!pushSubscription) {
-      console.log("Subscribing...");
-      const newPushSubscription = await sw.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey:
-          "BAwratwmIKW_nPDQY2gDJTo3SsvUPXFSOeQROh4X5DeGfiESXrz0odqGHCfVH_qkipQzaRn2oVkmYnsmBNMCDqo",
-      });
-
-      console.log("New pushsubscription => ", newPushSubscription);
-      subscribe(newPushSubscription);
-    }
   } catch (err) {
     console.log("Could not register service worker", err);
   }

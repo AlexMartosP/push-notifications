@@ -1,3 +1,5 @@
-self.addEventListener("push", () => {
-  console.log("push");
+self.addEventListener("push", (event) => {
+  const text = event.data.text();
+
+  event.waitUntil(self.registration.showNotification(text));
 });

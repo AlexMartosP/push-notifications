@@ -12,6 +12,12 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+app.get("/vapid", (req, res) => {
+  res.json({
+    public_key: process.env.VAPID_PUBLIC!,
+  });
+});
+
 app.post("/subscribe", async (req, res) => {
   const body = req.body;
   console.log(body);
@@ -28,7 +34,7 @@ app.post("/send", async (req, res) => {
   const subscriptions = await getAllSubscriptions();
 
   for (let i = 0; i < subscriptions.length; i++) {
-    await pushToService(subscriptions[i]);
+    await pushToService(subscriptions[i], message);
   }
 
   res.end();

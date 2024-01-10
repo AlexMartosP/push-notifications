@@ -1,4 +1,5 @@
 import { readFile, writeFile } from "fs/promises";
+import { PushSubscription } from "web-push";
 
 const path = "./db.json";
 
