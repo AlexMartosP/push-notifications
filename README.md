@@ -3,6 +3,7 @@ This is me testing setting up push notifications on client and server.
 I try keeping it as low level as possible and not intruducing libraries that do most of the work, to learn as much as possible.
 
 **Web push**
+
 The *bigger* library I am using is [web-push](https://github.com/web-push-libs/web-push) due to it's abstraction of the Web push protocol. All though I recommend reading about the protocol, here are som useful links:
 - [Web push RFC](https://datatracker.ietf.org/doc/html/rfc8030)
 - [Message encryption RFC](https://datatracker.ietf.org/doc/html/rfc8291)
