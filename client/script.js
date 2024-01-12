@@ -1,9 +1,27 @@
 const subscribeBtn = document.getElementById("subscribeBtn");
-const messageInput = document.getElementById("messageInput");
+const titleInput = document.getElementById("titleInput");
+const descriptionInput = document.getElementById("descriptionInput");
+const imageInput = document.getElementById("imageInput");
 const sendButton = document.getElementById("sendButton");
 
 subscribeBtn.addEventListener("click", askForPermisson);
-sendButton.addEventListener("click", sendMessage);
+sendButton.addEventListener("click", () => {
+  const title = titleInput.value;
+  const description = descriptionInput.value;
+  const image = imageInput.value;
+
+  sendMessage({
+    title,
+    body: description,
+    image,
+    actions: [
+      {
+        action: "click",
+        title: "Click me",
+      },
+    ],
+  });
+});
 
 async function askForPermisson() {
   const SW = await navigator.serviceWorker.getRegistration();
@@ -58,10 +76,8 @@ async function subscribe(pushSubscription) {
   });
 }
 
-function sendMessage() {
-  const message = messageInput.value;
-
-  console.log("Sending message => " + message);
+function sendMessage({ title, body, image, actions }) {
+  console.log("Sending message with title => " + title);
 
   fetch("http://localhost:8080/send", {
     method: "POST",
@@ -69,7 +85,10 @@ function sendMessage() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      message,
+      title,
+      body,
+      image,
+      actions,
     }),
   });
 }

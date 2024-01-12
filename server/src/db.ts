@@ -16,3 +16,13 @@ export async function getAllSubscriptions(): Promise<PushSubscription[]> {
 
   return JSON.parse(subscriptions);
 }
+
+export async function deleteSubscription(pushSubscription: PushSubscription) {
+  const subscriptions = await getAllSubscriptions();
+
+  const filteredSubscriptions = subscriptions.filter(
+    (s) => s.endpoint !== pushSubscription.endpoint
+  );
+
+  writeFile(path, JSON.stringify(filteredSubscriptions));
+}

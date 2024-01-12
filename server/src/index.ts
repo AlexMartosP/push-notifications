@@ -29,7 +29,7 @@ app.post("/subscribe", async (req, res) => {
 
 app.post("/send", async (req, res) => {
   const body = req.body;
-  const message = body.message;
+  const message = body;
 
   const subscriptions = await getAllSubscriptions();
 
